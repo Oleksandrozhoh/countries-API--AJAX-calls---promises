@@ -26,14 +26,36 @@ function renderCountry(countryData, className = '') {
   countriesContainer.insertAdjacentHTML('beforeend', html);
 }
 
+function renderError(error) {
+  countriesContainer.insertAdjacentText('beforeend', error);
+}
+
 const getContryData = function (country) {
   fetch(`https://restcountries.com/v3.1/name/${country}`)
     .then(function (responce) {
+      if (!responce.ok)
+        throw new Error(`Country not found (${responce.status})`);
       return responce.json();
     })
     .then(function (data) {
       renderCountry(data[0]);
+      const borderCountry = data[0].borders[0];
+      if (!borderCountry) return;
+      return fetch(`https://restcountries.com/v3.1/alpha/${borderCountry}`);
+    })
+    .then(responce => responce.json())
+    .then(data => {
+      console.log(data[0]);
+      renderCountry(data[0], 'neighbour');
+    })
+    .catch(err => {
+      console.error(`${err} 🤦‍♂️🤦‍♂️🤦‍♀️`);
+      renderError(`Something went wrong ${err.message}. Try again!`);
     });
 };
 
-getContryData('usa');
+getContryData('dfasdfsa');
+
+btn.addEventListener('click', function () {
+  getContryData('portugal');
+});
