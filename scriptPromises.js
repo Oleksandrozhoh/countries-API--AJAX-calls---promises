@@ -68,3 +68,68 @@ const getContryData = function (country) {
 
 //   console.log(coords);
 // });
+
+///////////////////////////////////////////////
+// Promise.all
+const get3Countries = async function (c1, c2, c3) {
+  try {
+    const data = await Promise.all([
+      getJsonResponce(`https://restcountries.com/v3.1/name/${c1}`),
+      getJsonResponce(`https://restcountries.com/v3.1/name/${c2}`),
+      getJsonResponce(`https://restcountries.com/v3.1/name/${c3}`),
+    ]);
+    // console.log(data[0][0]);
+  } catch (err) {
+    console.error(err);
+  }
+};
+get3Countries('portugal', 'usa', 'germany');
+
+///////////////////////////////////////////////
+// Promise.race
+(async function () {
+  const res = await Promise.race([
+    getJsonResponce(`https://restcountries.com/v3.1/name/portugal`),
+    getJsonResponce(`https://restcountries.com/v3.1/name/germany`),
+    getJsonResponce(`https://restcountries.com/v3.1/name/usa`),
+  ]);
+  // console.log(res[0].name.common);
+})();
+
+const timeout = function (sec) {
+  return new Promise(function (_, reject) {
+    setTimeout(function () {
+      reject(new Error('request took too long'));
+    }, sec * 1000);
+  });
+};
+
+(async function () {
+  const responce = await Promise.race([
+    getJsonResponce(`https://restcountries.com/v3.1/name/portugal`),
+    timeout(1),
+  ]);
+  // console.log(responce);
+})();
+
+///////////////////////////////////////////////
+// Promise.allSettled
+(async function () {
+  const res = await Promise.allSettled([
+    getJsonResponce(`https://restcountries.com/v3.1/name/usa`),
+    Promise.reject('Rejected Promise'),
+    Promise.reject('Another rejected promice'),
+  ]);
+  // console.log(res);
+})();
+
+///////////////////////////////////////////////
+// Promise.any
+(async function () {
+  const res = await Promise.any([
+    Promise.reject('Rejected Promise'),
+    Promise.reject('Another rejected promice'),
+    getJsonResponce(`https://restcountries.com/v3.1/name/usa`),
+  ]);
+  console.log(res);
+})();

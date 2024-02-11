@@ -30,11 +30,17 @@ const whereAmI = async function (country) {
       `https://restcountries.com/v3.1/name/${country}`
     );
     const data = await response.json();
-    console.log(data[0]);
     renderCountry(data[0]);
+    return data[0];
   } catch (err) {
     console.error(err);
   }
 };
 
-whereAmI('usa');
+(async function (country) {
+  console.log('First line');
+  // in this case promise will be treated an a sync code
+  const countryData = await whereAmI(country);
+  console.log(countryData);
+  console.log('Last line');
+})('usa');
