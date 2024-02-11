@@ -30,20 +30,23 @@ function renderError(error) {
   countriesContainer.insertAdjacentText('beforeend', error);
 }
 
+function getJsonResponce(requestURL) {
+  return fetch(requestURL).then(function (responce) {
+    if (!responce.ok) throw new Error(`Country not found (${responce.status})`);
+    return responce.json();
+  });
+}
+
 const getContryData = function (country) {
-  fetch(`https://restcountries.com/v3.1/name/${country}`)
-    .then(function (responce) {
-      if (!responce.ok)
-        throw new Error(`Country not found (${responce.status})`);
-      return responce.json();
-    })
+  getJsonResponce(`https://restcountries.com/v3.1/name/${country}`)
     .then(function (data) {
       renderCountry(data[0]);
-      const borderCountry = data[0].borders[0];
-      if (!borderCountry) return;
-      return fetch(`https://restcountries.com/v3.1/alpha/${borderCountry}`);
+      const borderCountry = data[0].borders?.[0];
+      if (!borderCountry) throw new Error('No neighbour countries');
+      return getJsonResponce(
+        `https://restcountries.com/v3.1/alpha/${borderCountry}`
+      );
     })
-    .then(responce => responce.json())
     .then(data => {
       console.log(data[0]);
       renderCountry(data[0], 'neighbour');
@@ -54,8 +57,14 @@ const getContryData = function (country) {
     });
 };
 
-getContryData('dfasdfsa');
+// getContryData('usa');
 
-btn.addEventListener('click', function () {
-  getContryData('portugal');
-});
+// btn.addEventListener('click', function () {
+//   let coords;
+//   navigator.geolocation.getCurrentPosition(function (response) {
+//     console.log(response.coords.latitude);
+//     coords = response.coords.longitude;
+//   });
+
+//   console.log(coords);
+// });
